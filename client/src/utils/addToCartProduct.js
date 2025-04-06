@@ -6,7 +6,7 @@ import AxiosToastError from "./AxiosToastError"
 export const addToCartProduct = async(productId,qty)=>{
     try {
         const response = await Axios({
-            ...SummaryApi.addToCart,
+            ...SummaryApi.addTocart,
             data : {
                 quantity : qty,
                 productId : productId

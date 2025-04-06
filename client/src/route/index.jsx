@@ -19,6 +19,7 @@ import ProductAdmin from "../pages/ProductAdmin";
 import AdminPermision from "../layouts/AdminPermision";
 import ProductListPage from "../pages/ProductListPage";
 import ProductDisplayPage from "../pages/ProductDisplayPage";
+import Recipe from "../pages/Recipe";
 import CartMobile from "../pages/CartMobile";
 import CheckoutPage from "../pages/CheckoutPage";
 import Success from "../pages/Success";
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
                     {
                         path : "profile",
                         element : <Profile/>
+                    },
+                    {
+                        path: "recipes",
+                        element: <Recipe />
                     },
                     {
                         path : "myorders",

@@ -9,6 +9,14 @@ const SummaryApi = {
         url : '/api/user/login',
         method : 'post'
     },
+    getAllRecipes: {
+        method: "get",
+        url: "/api/recipes"
+    },      
+    createRecipe: {
+        method: "post",
+        url: "/api/recipe"
+    },    
     forgot_password : {
         url : "/api/user/forgot-password",
         method : 'put'
