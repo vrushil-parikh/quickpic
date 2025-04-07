@@ -303,7 +303,7 @@ export async function forgotPasswordController(request,response) {
 
         await sendEmail({
             sendTo : email,
-            subject : "Forgot password from Binkeyit",
+            subject : "Forgot password from QuickPick",
             html : forgotPasswordTemplate({
                 name : user.name,
                 otp : otp
