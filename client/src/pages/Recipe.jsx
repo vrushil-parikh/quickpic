@@ -41,7 +41,7 @@ const Recipe = () => {
     }
 
     if (addedAny) {
-      toast.success("Ingredients added to cart!");
+      
       if (fetchCartItem) fetchCartItem();
     }
   };

@@ -25,6 +25,11 @@ const recipeSchema = new mongoose.Schema({
       },
     },
   ],
+  servings: { // New field to track number of servings
+    type: Number,
+    required: true,
+    min: 1, // at least one person
+  },
 }, {
   timestamps: true,
 });

@@ -1,39 +1,160 @@
 import express from 'express';
-import Recipe from '../models/recipe.model.js';
-
+import RecipeModel from '../models/recipe.model.js';
 
 const router = express.Router();
 
-// Get all recipes
-router.get('/', async (req, res) => {
+// 1. Create a Recipe
+router.post('/create', async (req, res) => {
   try {
-    const recipes = await Recipe.find().populate('ingredients.productId');
-    res.json(recipes);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    const { name, description, image, ingredients, servings } = req.body;
 
-// Get one recipe by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const recipe = await Recipe.findById(req.params.id).populate('ingredients.productId');
-    if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
-    res.json(recipe);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    // Check required fields
+    if (!name || !ingredients || !servings) {
+      return res.status(400).json({
+        message: 'Name, ingredients, and servings are required fields.',
+        error: true,
+        success: false,
+      });
+    }
 
-// Create a new recipe
-router.post('/', async (req, res) => {
-  try {
-    const newRecipe = new Recipe(req.body);
+    const newRecipe = new RecipeModel({
+      name,
+      description,
+      image,
+      ingredients,
+      servings,
+    });
+
     const savedRecipe = await newRecipe.save();
-    res.status(201).json(savedRecipe);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+
+    return res.status(201).json({
+      data: savedRecipe,
+      message: 'Recipe created successfully.',
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
   }
 });
 
-export default router; 
+// 2. Get All Recipes
+router.get('/get', async (req, res) => {
+  try {
+    const recipes = await RecipeModel.find({});
+    return res.status(200).json({
+      data: recipes,
+      message: 'All recipes fetched successfully.',
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// 3. Get a Single Recipe by ID
+router.get('/get/:id', async (req, res) => {
+  try {
+    const recipe = await RecipeModel.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({
+        message: 'Recipe not found.',
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      data: recipe,
+      message: 'Recipe fetched successfully.',
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// 4. Update a Recipe by ID
+router.put('/put/:id', async (req, res) => {
+  try {
+    const { name, description, image, ingredients, servings } = req.body;
+
+    // Check required fields
+    if (!name || !ingredients || !servings) {
+      return res.status(400).json({
+        message: 'Name, ingredients, and servings are required fields.',
+        error: true,
+        success: false,
+      });
+    }
+
+    const updatedRecipe = await RecipeModel.findByIdAndUpdate(
+      req.params.id,
+      { name, description, image, ingredients, servings },
+      { new: true } // Return the updated recipe
+    );
+
+    if (!updatedRecipe) {
+      return res.status(404).json({
+        message: 'Recipe not found.',
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      data: updatedRecipe,
+      message: 'Recipe updated successfully.',
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+// 5. Delete a Recipe by ID
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const deletedRecipe = await RecipeModel.findByIdAndDelete(req.params.id);
+    if (!deletedRecipe) {
+      return res.status(404).json({
+        message: 'Recipe not found.',
+        error: true,
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Recipe deleted successfully.',
+      error: false,
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false,
+    });
+  }
+});
+
+export default router;
