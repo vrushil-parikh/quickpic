@@ -4,7 +4,7 @@ import UserModel from "../models/user.model.js";
 export const addToCartItemController = async(request,response)=>{
     try {
         const  userId = request.userId
-        const { productId } = request.body
+        const { productId, quantity } = request.body
         
         if(!productId){
             return response.status(402).json({
@@ -26,7 +26,7 @@ export const addToCartItemController = async(request,response)=>{
         }
 
         const cartItem = new CartProductModel({
-            quantity : 1,
+            quantity : quantity,
             userId : userId,
             productId : productId
         })

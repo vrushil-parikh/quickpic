@@ -12,7 +12,7 @@ const sendEmail = async({sendTo, subject, html })=>{
     try {
         const { data, error } = await resend.emails.send({
             from: 'quickpick@resend.dev',
-            to: sendTo,
+            to: 'vrushilparikh123@gmail.com',
             subject: subject,
             html: html,
         });
