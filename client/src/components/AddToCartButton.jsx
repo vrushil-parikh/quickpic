@@ -104,3 +104,5 @@ const AddToCartButton = ({ data }) => {
 }
 
 export default AddToCartButton
+
+

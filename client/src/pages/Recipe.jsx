@@ -10,7 +10,7 @@ const Recipe = () => {
     const fetchRecipes = async () => {
       try {
         const data = await getAllRecipes();
-        console.log("Fetched recipes:", data); // ✅ Debug
+        console.log("Fetched recipes:", data); 
         setRecipes(data);
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
@@ -25,7 +25,7 @@ const Recipe = () => {
   const handleAddIngredientsToCart = async (ingredients) => {
     for (const item of ingredients) {
       const productId = item?.productId?._id;
-      const quantity = item?.quantity || 1;
+      const quantity = item?.quantity || 5;
 
       if (productId) {
         await addToCartProduct(productId, quantity);
