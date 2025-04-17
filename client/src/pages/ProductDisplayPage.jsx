@@ -164,7 +164,7 @@ const ProductDisplayPage = () => {
               }
            
 
-            <h2 className='font-semibold'>Why shop from binkeyit? </h2>
+            <h2 className='font-semibold'>Why shop from QuickPick? </h2>
             <div>
                   <div className='flex  items-center gap-4 my-4'>
                       <img
