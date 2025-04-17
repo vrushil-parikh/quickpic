@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { getAllRecipes } from "../utils/RecipeAPI";
 import { addToCartProduct } from "../utils/addToCartProduct";
+import { useGlobalContext } from "../provider/GlobalProvider";
+import toast from "react-hot-toast";
 
 const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 👇 Global context to refresh the cart after adding items
+  const { fetchCartItem } = useGlobalContext();
+
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
         const data = await getAllRecipes();
-        console.log("Fetched recipes:", data); 
+        console.log("Fetched recipes:", data);
         setRecipes(data);
       } catch (error) {
         console.error("Failed to fetch recipes:", error);
@@ -23,13 +28,21 @@ const Recipe = () => {
   }, []);
 
   const handleAddIngredientsToCart = async (ingredients) => {
+    let addedAny = false;
+
     for (const item of ingredients) {
       const productId = item?.productId?._id;
       const quantity = item?.quantity || 5;
 
       if (productId) {
         await addToCartProduct(productId, quantity);
+        addedAny = true;
       }
+    }
+
+    if (addedAny) {
+      toast.success("Ingredients added to cart!");
+      if (fetchCartItem) fetchCartItem();
     }
   };
 
