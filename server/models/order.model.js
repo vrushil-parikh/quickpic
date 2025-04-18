@@ -41,10 +41,18 @@ const orderSchema = new mongoose.Schema({
     invoice_receipt : {
         type : String,
         default : ""
-    }
+    },
+    // Add status field with default value "ordered"
+    status: {
+    type: String,
+    enum: ['ordered', 'picked up', 'out for delivery', 'delivered'],
+    default: 'ordered',
+    required: true
+  },
+  
 },{
     timestamps : true
-})
+});
 
 const OrderModel = mongoose.model('order',orderSchema)
 

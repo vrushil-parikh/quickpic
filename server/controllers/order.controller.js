@@ -4,6 +4,52 @@ import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
 
+export async function updateOrderStatusController(request, response) {
+    try {
+      const { orderId } = request.params;
+      const { status } = request.body;
+      
+      // Validate status value
+      const validStatuses = ['ordered', 'picked up', 'out for delivery', 'delivered'];
+      if (!validStatuses.includes(status)) {
+        return response.status(400).json({ 
+          message: 'Invalid status value',
+          error: true,
+          success: false
+        });
+      }
+      
+      // Find order and update status
+      const order = await OrderModel.findByIdAndUpdate(
+        orderId,
+        { status },
+        { new: true }
+      );
+      
+      if (!order) {
+        return response.status(404).json({
+          message: 'Order not found',
+          error: true,
+          success: false
+        });
+      }
+      
+      return response.status(200).json({
+        message: 'Order status updated successfully',
+        data: order,
+        error: false,
+        success: true
+      });
+      
+    } catch (error) {
+      return response.status(500).json({
+        message: error.message || error,
+        error: true,
+        success: false
+      });
+    }
+  }
+
  export async function CashOnDeliveryOrderController(request,response){
     try {
         const userId = request.userId // auth middleware 

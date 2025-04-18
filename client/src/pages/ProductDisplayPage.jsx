@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import SummaryApi from '../common/SummaryApi'
 import Axios from '../utils/Axios'
 import AxiosToastError from '../utils/AxiosToastError'
-import { FaAngleRight, FaAngleLeft, FaClock, FaLeaf, FaTruck, FaStar } from "react-icons/fa";
+import { FaAngleRight, FaAngleLeft, FaClock, FaLeaf, FaTruck, FaStar, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import Divider from '../components/Divider'
 import image1 from '../assets/minute_delivery.png'
@@ -21,6 +21,7 @@ const ProductDisplayPage = () => {
   })
   const [image, setImage] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [showFullDescription, setShowFullDescription] = useState(false)
   const imageContainer = useRef()
 
   const fetchProductDetails = async() => {
@@ -55,6 +56,18 @@ const ProductDisplayPage = () => {
   
   const handleScrollLeft = () => {
     imageContainer.current.scrollLeft -= 100
+  }
+  
+  // Function to truncate text and add "..." if necessary
+  const truncateText = (text, wordCount = 55) => {
+    if (!text) return "";
+    const words = text.split(' ');
+    if (words.length <= wordCount) return text;
+    return words.slice(0, wordCount).join(' ') + '...';
+  }
+  
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
   }
   
   return (
@@ -144,9 +157,6 @@ const ProductDisplayPage = () => {
             <div className='p-6 lg:p-8 flex flex-col'>
               {/* Delivery Badge */}
               <div className='flex items-center gap-2 mb-4'>
-                <span className='bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center gap-2 shadow-sm'>
-                  <FaClock className="text-xs" /> 10 Min Delivery
-                </span>
                 <span className='bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center gap-2 shadow-sm'>
                   <FaLeaf className="text-xs" /> Fresh Quality
                 </span>
@@ -188,30 +198,24 @@ const ProductDisplayPage = () => {
                 </div>
               )}
               
-              {/* Add to Cart Button */}
+              {/* Improved Add to Cart Button */}
               {data.stock === 0 ? (
                 <div className='mb-6 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl text-center shadow-sm'>
                   <p className='font-medium'>Currently Out of Stock</p>
                   <p className='text-sm mt-1 text-red-600'>We're working to restock this item soon!</p>
                 </div>
               ) : (
-                <div className='mb-6 transform hover:scale-[1.01] transition-transform'>
-                  <AddToCartButton data={data} />
+                <div className='mb-6 scale-100 transform hover:scale-110 transition-all'>
+                  <div className='w-20 p-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl shadow-lg hover:shadow-xl'>
+                    <AddToCartButton data={data} className="w-full py-3 px-6 font-bold text-white text-lg bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center gap-2 hover:from-green-600 hover:to-emerald-700" />
+                  </div>
                 </div>
               )}
+
+
               
-              {/* Delivery Info */}
-              <div className='flex items-center gap-3 mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100'>
-                <div className='bg-blue-100 p-2 rounded-full'>
-                  <FaTruck className="text-blue-700" />
-                </div>
-                <div>
-                  <p className='font-medium text-blue-900'>Delivery Information</p>
-                  <p className='text-sm text-blue-700'>Free delivery for orders above ₹499</p>
-                </div>
-              </div>
-              
-              {/* Product Description - Desktop */}
+
+              {/* Product Description - Desktop with Collapsible Feature */}
               <div className='mb-6 border-t border-dashed border-green-200 pt-6 hidden lg:block'>
                 <div className='mb-4'>
                   <h2 className='font-semibold text-emerald-800 mb-3 flex items-center gap-2'>
@@ -220,7 +224,23 @@ const ProductDisplayPage = () => {
                     </span>
                     Product Description
                   </h2>
-                  <p className='text-gray-700'>{data.description}</p>
+                  
+                  <div className='text-gray-700'>
+                    <p>{showFullDescription ? data.description : truncateText(data.description)}</p>
+                    
+                    {data.description && data.description.split(' ').length > 55 && (
+                      <button 
+                        onClick={toggleDescription}
+                        className='mt-2 text-emerald-600 font-medium flex items-center hover:text-emerald-700 transition-colors'
+                      >
+                        {showFullDescription ? (
+                          <>Show Less <FaChevronUp className="ml-1 text-xs" /></>
+                        ) : (
+                          <>View More <FaChevronDown className="ml-1 text-xs" /></>
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 {data?.more_details && Object.keys(data.more_details).length > 0 && (
@@ -291,7 +311,7 @@ const ProductDisplayPage = () => {
             </div>
           </div>
           
-          {/* Product Description - Mobile */}
+          {/* Product Description - Mobile with Collapsible Feature */}
           <div className='p-6 border-t border-green-100 lg:hidden bg-white'>
             <h2 className='text-lg font-bold text-gray-800 mb-4 flex items-center gap-2'>
               <span className='text-green-600'><FaLeaf /></span>
@@ -300,7 +320,22 @@ const ProductDisplayPage = () => {
             
             <div className='mb-5 bg-gray-50 p-4 rounded-lg'>
               <h3 className='font-semibold text-green-800 mb-2'>Description</h3>
-              <p className='text-gray-700'>{data.description}</p>
+              <div className='text-gray-700'>
+                <p>{showFullDescription ? data.description : truncateText(data.description)}</p>
+                
+                {data.description && data.description.split(' ').length > 55 && (
+                  <button 
+                    onClick={toggleDescription}
+                    className='mt-2 text-emerald-600 font-medium flex items-center hover:text-emerald-700 transition-colors'
+                  >
+                    {showFullDescription ? (
+                      <>Show Less <FaChevronUp className="ml-1 text-xs" /></>
+                    ) : (
+                      <>View More <FaChevronDown className="ml-1 text-xs" /></>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
             
             <div className='mb-5 bg-gray-50 p-4 rounded-lg'>

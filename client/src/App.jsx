@@ -15,6 +15,7 @@ import GlobalProvider from './provider/GlobalProvider';
 import { FaCartShopping } from "react-icons/fa6";
 import CartMobileLink from './components/CartMobile';
 
+
 function App() {
   const dispatch = useDispatch()
   const location = useLocation()

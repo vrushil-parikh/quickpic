@@ -160,7 +160,12 @@ const SummaryApi = {
     getOrderItems : {
         url : '/api/order/order-list',
         method : 'get'
+    },
+    getOrderList:{
+        url : '/api/order/orders',
+        method : 'get'
     }
+
 }
 
 export default SummaryApi

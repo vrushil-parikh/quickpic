@@ -68,6 +68,12 @@ const UserMenu = ({close}) => {
 
             {
               isAdmin(user.role) && (
+                <Link onClick={handleClose} to={"/dashboard/orders"} className='px-2 hover:bg-orange-200 py-1'>Orders</Link>
+              )
+            }
+
+            {
+              isAdmin(user.role) && (
                 <Link onClick={handleClose} to={"/dashboard/upload-product"} className='px-2 hover:bg-orange-200 py-1'>Upload Product</Link>
               )
             }
