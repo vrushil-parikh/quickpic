@@ -11,9 +11,10 @@ orderRouter.post("/cash-on-delivery",auth,CashOnDeliveryOrderController)
 orderRouter.post('/checkout',auth,paymentController)
 orderRouter.post('/webhook',webhookStripe)
 orderRouter.get("/order-list",auth,getOrderDetailsController)
-orderRouter.get('/orders',auth,admin,getAllOrders);
-orderRouter.get('/order/:id',auth,getOrderDetails);
-orderRouter.put('/order/:id',auth, updateOrderStatus);
-orderRouter.delete('/order/:id',auth,deleteOrder);
+orderRouter.get('/orders',auth,getAllOrders);
+orderRouter.get('/orderdetail/:id',auth,getOrderDetails);
+orderRouter.put('/orderdetail/:id',auth, updateOrderStatus);
+orderRouter.delete('/orderdetail/:id',auth,deleteOrder);
+
 
 export default orderRouter

@@ -12,11 +12,24 @@ const SummaryApi = {
     getAllRecipes: {
         method: "get",
         url: "/api/recipes"
-    },      
+    },
+    getSingleRecipe: {
+        method: "get",
+        url: (id) => `/api/recipes/${id}` // use like: SummaryApi.getSingleRecipe.url(recipeId)
+    },
     createRecipe: {
         method: "post",
-        url: "/api/recipe"
-    },    
+        url: "/api/recipes/create"
+    },
+    updateRecipe: {
+        method: "PUT",
+        url: (id) => `/api/recipes/update/${id}`, // Dynamically insert recipeId
+    },
+    deleteRecipe: {
+        method: "delete",
+        url: (id) => `/api/recipes/delete/${id}` // dynamic route
+    },
+        
     forgot_password : {
         url : "/api/user/forgot-password",
         method : 'put'
@@ -113,6 +126,10 @@ const SummaryApi = {
         url : "/api/product/delete-product",
         method : 'delete'
     },
+    getAllProducts: {
+        method: "get",
+        url: "/api/product/admin/get-product-details"
+    },
     searchProduct : {
         url : '/api/product/search-product',
         method : 'post'
@@ -164,7 +181,18 @@ const SummaryApi = {
     getOrderList:{
         url : '/api/order/orders',
         method : 'get'
-    }
+    },
+    getOrderDetailsById: {
+        method: "get",
+        url: (id) => `/api/order/orderdetail/${id}`
+    },
+    updateOrderStatus: (id) => ({
+        url: `/api/order/orderdetail/${id}`,
+        method: 'PUT',
+      })
+      
+      
+      
 
 }
 

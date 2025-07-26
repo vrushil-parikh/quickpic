@@ -4,12 +4,15 @@ import OrderModel from "../models/order.model.js";
 // Get all orders - Admin
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await OrderModel.find()
-      .populate('userId', 'name email')
-      .populate('productId', 'name price')
-      .populate('delivery_address');
+    const query = {};
+    if (req.query.status) {
+      query.status = req.query.status;
+    }
 
-      console.log(`Found ${orders.length} orders`);
+    const orders = await OrderModel.find(query)
+      .populate('userId', 'name email')
+      .populate('products.productId', 'name price') // ✅ update this line
+      .populate('delivery_address');
 
     let totalAmount = 0;
     orders.forEach(order => {
@@ -22,7 +25,6 @@ export const getAllOrders = async (req, res) => {
       orders
     });
   } catch (error) {
-    console.error("Error in getAllOrders:", error);
     res.status(500).json({
       success: false,
       message: "Error fetching orders",
@@ -31,12 +33,12 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// Get single order - Admin
+// Get single order details - Admin
 export const getOrderDetails = async (req, res) => {
   try {
-    const order = await OrderModel.findById(req.params.id)
+    const order = await OrderModel.findOne({ orderId: req.params.id })
       .populate('userId', 'name email')
-      .populate('productId', 'name price')
+      .populate('products.productId', 'name price') // ✅ update this line
       .populate('delivery_address');
 
     if (!order) {
@@ -58,6 +60,8 @@ export const getOrderDetails = async (req, res) => {
     });
   }
 };
+
+
 
 // Update order status - Admin
 export const updateOrderStatus = async (req, res) => {

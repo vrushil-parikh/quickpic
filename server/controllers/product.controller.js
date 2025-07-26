@@ -309,3 +309,14 @@ export const searchProduct = async(request,response)=>{
         })
     }
 }
+
+// Get all products
+export const getAllProducts = async (req, res) => {
+    try {
+      const products = await ProductModel.find().populate("category subCategory");
+      res.json({ success: true, data: products });
+    } catch (error) {
+      res.json({ success: false, message: error.message });
+    }
+  };
+  

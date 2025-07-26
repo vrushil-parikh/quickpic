@@ -3,68 +3,71 @@ import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import { Link } from 'react-router-dom'
 import { valideURLConvert } from '../utils/valideURLConvert'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
-import SummaryApi from '../common/SummaryApi'
-import AxiosToastError from '../utils/AxiosToastError'
-import Axios from '../utils/Axios'
-import toast from 'react-hot-toast'
 import { useState } from 'react'
-import { useGlobalContext } from '../provider/GlobalProvider'
 import AddToCartButton from './AddToCartButton'
 
 const CardProduct = ({data}) => {
     const url = `/product/${valideURLConvert(data.name)}-${data._id}`
-    const [loading,setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
   
-  return (
-    <Link to={url} className='border py-2 lg:p-4 grid gap-1 lg:gap-3 min-w-36 lg:min-w-52 rounded cursor-pointer bg-white' >
-      <div className='min-h-20 w-full max-h-24 lg:max-h-32 rounded overflow-hidden'>
-            <img 
-                src={data.image[0]}
-                className='w-full h-full object-scale-down lg:scale-125'
-            />
-      </div>
-      <div className='flex items-center gap-1'>
-        <div className='rounded text-xs w-fit p-[1px] px-2 text-green-600 bg-green-50'>
-              10 min 
-        </div>
-        <div>
-            {
-              Boolean(data.discount) && (
-                <p className='text-green-600 bg-green-100 px-2 w-fit text-xs rounded-full'>{data.discount}% discount</p>
-              )
-            }
-        </div>
-      </div>
-      <div className='px-2 lg:px-0 font-medium text-ellipsis text-sm lg:text-base line-clamp-2'>
-        {data.name}
-      </div>
-      <div className='w-fit gap-1 px-2 lg:px-0 text-sm lg:text-base'>
-        {data.unit} 
-        
-      </div>
-
-      <div className='px-2 lg:px-0 flex items-center justify-between gap-1 lg:gap-3 text-sm lg:text-base'>
-        <div className='flex items-center gap-1'>
-          <div className='font-semibold'>
-              {DisplayPriceInRupees(pricewithDiscount(data.price,data.discount))} 
-          </div>
-          
-          
-        </div>
-        <div className=''>
-          {
-            data.stock == 0 ? (
-              <p className='text-red-500 text-sm text-center'>Out of stock</p>
-            ) : (
-              <AddToCartButton data={data} />
-            )
-          }
+    return (
+        <Link 
+            to={url} 
+            className='relative border border-gray-100 py-3 lg:p-4 flex flex-col w-64 h-72 rounded-lg hover:shadow-md transition-shadow duration-300 cursor-pointer bg-white'
+        >
+            {/* Image container with fixed height */}
+            <div className='h-28 w-full rounded overflow-hidden flex items-center justify-center mb-2'>
+                <img 
+                    src={data.image[0]}
+                    alt={data.name}
+                    className='max-h-full max-w-full object-contain hover:scale-110 transition-transform duration-500'
+                />
+            </div>
             
-        </div>
-      </div>
+            {/* Badges row */}
+            <div className='flex items-center gap-1.5 px-2 lg:px-0'>
+                <div className='rounded-full text-xs py-0.5 px-2 text-green-600 bg-green-50 font-medium'>
+                    10 min 
+                </div>
+                {Boolean(data.discount) && (
+                    <div className='rounded-full text-xs py-0.5 px-2 text-green-600 bg-green-50 font-medium'>
+                        {data.discount}% off
+                    </div>
+                )}
+            </div>
+            
+            {/* Product name - fixed height with line clamp */}
+            <div className='px-2 lg:px-0 font-medium text-sm lg:text-base line-clamp-2 h-12 text-gray-800 mt-1'>
+                {data.name}
+            </div>
+            
+            {/* Unit */}
+            <div className='px-2 lg:px-0 text-xs lg:text-sm text-gray-500'>
+                {data.unit} 
+            </div>
 
-    </Link>
-  )
+            {/* Price and add to cart - pushed to bottom with margin-top auto */}
+            <div className='px-2 lg:px-0 flex items-center justify-between gap-1 lg:gap-3 mt-auto'>
+                <div className='flex items-center gap-2'>
+                    <div className='font-semibold text-gray-900'>
+                        {DisplayPriceInRupees(pricewithDiscount(data.price, data.discount))} 
+                    </div>
+                    {Boolean(data.discount) && (
+                        <span className='text-xs text-gray-400 line-through'>
+                            {DisplayPriceInRupees(data.price)}
+                        </span>
+                    )}
+                </div>
+                <div>
+                    {data.stock === 0 ? (
+                        <p className='text-red-500 text-xs font-medium bg-red-50 px-2 py-1 rounded'>Out of stock</p>
+                    ) : (
+                        <AddToCartButton data={data} />
+                    )}
+                </div>
+            </div>
+        </Link>
+    )
 }
 
 export default CardProduct

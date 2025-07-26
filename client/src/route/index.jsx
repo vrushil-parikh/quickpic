@@ -26,6 +26,8 @@ import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
 import OrdersList from "../pages/OrdersList";
 import OrderDetails from "../pages/OrderDetails";
+import AdminRecipeListPage from "../pages/AdminRecipePage";
+import AdminRecipeForm from "../pages/AdminRecipeForm";
 
 const router = createBrowserRouter([
     {
@@ -81,12 +83,24 @@ const router = createBrowserRouter([
                         element : <MyOrders/>
                     },
                     {
+                        path : "admin-recipe",
+                        element : <AdminRecipeListPage/>
+                    },
+                    {
                         path : "orders",
                         element : <AdminPermision><OrdersList/></AdminPermision>
                     },
                     {
                         path : "order/:id",
                         element : <AdminPermision><OrderDetails/></AdminPermision>
+                    },
+                    {
+                        path: "admin-recipe/create",
+                        element: <AdminPermision><AdminRecipeForm /></AdminPermision>
+                    },
+                    {
+                        path: "admin-recipe/edit/:recipeId",
+                        element: <AdminPermision><AdminRecipeForm /></AdminPermision>
                     },
                     {
                         path : "address",

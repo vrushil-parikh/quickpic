@@ -49,50 +49,49 @@ export async function updateOrderStatusController(request, response) {
       });
     }
   }
-
- export async function CashOnDeliveryOrderController(request,response){
+  export async function CashOnDeliveryOrderController(req, res) {
     try {
-        const userId = request.userId // auth middleware 
-        const { list_items, totalAmt, addressId,subTotalAmt } = request.body 
-
-        const payload = list_items.map(el => {
-            return({
-                userId : userId,
-                orderId : `ORD-${new mongoose.Types.ObjectId()}`,
-                productId : el.productId._id, 
-                product_details : {
-                    name : el.productId.name,
-                    image : el.productId.image
-                } ,
-                paymentId : "",
-                payment_status : "CASH ON DELIVERY",
-                delivery_address : addressId ,
-                subTotalAmt  : subTotalAmt,
-                totalAmt  :  totalAmt,
-            })
-        })
-
-        const generatedOrder = await OrderModel.insertMany(payload)
-
-        ///remove from the cart
-        const removeCartItems = await CartProductModel.deleteMany({ userId : userId })
-        const updateInUser = await UserModel.updateOne({ _id : userId }, { shopping_cart : []})
-
-        return response.json({
-            message : "Order successfully",
-            error : false,
-            success : true,
-            data : generatedOrder
-        })
-
+      const userId = req.userId;
+      const { list_items, totalAmt, addressId, subTotalAmt } = req.body;
+  
+      const payload = {
+        userId,
+        orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+        products: list_items.map(el => ({
+          productId: el.productId._id,
+          product_details: {
+            name: el.productId.name,
+            image: el.productId.image
+          },
+          quantity: el.quantity,
+          price: pricewithDiscount(el.productId.price, el.productId.discount)
+        })),
+        paymentId: "",
+        payment_status: "CASH ON DELIVERY",
+        delivery_address: addressId,
+        subTotalAmt,
+        totalAmt
+      };
+  
+      const createdOrder = await OrderModel.create(payload);
+  
+      await CartProductModel.deleteMany({ userId });
+      await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
+  
+      return res.json({
+        message: "Order placed successfully",
+        success: true,
+        data: createdOrder
+      });
+  
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error ,
-            error : true,
-            success : false
-        })
+      return res.status(500).json({
+        message: error.message || error,
+        error: true
+      });
     }
-}
+  }
+  
 
 export const pricewithDiscount = (price,dis = 1)=>{
     const discountAmout = Math.ceil((Number(price) * Number(dis)) / 100)
@@ -156,99 +155,98 @@ export async function paymentController(request,response){
 }
 
 
-const getOrderProductItems = async({
+const getOrderProductItems = async ({
     lineItems,
     userId,
     addressId,
     paymentId,
-    payment_status,
- })=>{
-    const productList = []
-
-    if(lineItems?.data?.length){
-        for(const item of lineItems.data){
-            const product = await Stripe.products.retrieve(item.price.product)
-
-            const paylod = {
-                userId : userId,
-                orderId : `ORD-${new mongoose.Types.ObjectId()}`,
-                productId : product.metadata.productId, 
-                product_details : {
-                    name : product.name,
-                    image : product.images
-                } ,
-                paymentId : paymentId,
-                payment_status : payment_status,
-                delivery_address : addressId,
-                subTotalAmt  : Number(item.amount_total / 100),
-                totalAmt  :  Number(item.amount_total / 100),
-            }
-
-            productList.push(paylod)
-        }
+    payment_status
+  }) => {
+    const orderPayload = {
+      userId,
+      orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+      products: [],
+      paymentId,
+      payment_status,
+      delivery_address: addressId,
+      subTotalAmt: 0,
+      totalAmt: 0
+    };
+  
+    for (const item of lineItems.data) {
+      const product = await Stripe.products.retrieve(item.price.product);
+      const price = Number(item.amount_total / 100);
+  
+      orderPayload.products.push({
+        productId: product.metadata.productId,
+        product_details: {
+          name: product.name,
+          image: product.images
+        },
+        quantity: item.quantity,
+        price
+      });
+  
+      orderPayload.subTotalAmt += price;
+      orderPayload.totalAmt += price;
     }
-
-    return productList
-}
-
+  
+    return orderPayload;
+  };
+  
 //http://localhost:8080/api/order/webhook
-export async function webhookStripe(request,response){
-    const event = request.body;
-    const endPointSecret = process.env.STRIPE_ENPOINT_WEBHOOK_SECRET_KEY
-
-    console.log("event",event)
-
-    // Handle the event
-  switch (event.type) {
-    case 'checkout.session.completed':
-      const session = event.data.object;
-      const lineItems = await Stripe.checkout.sessions.listLineItems(session.id)
-      const userId = session.metadata.userId
-      const orderProduct = await getOrderProductItems(
-        {
-            lineItems : lineItems,
-            userId : userId,
-            addressId : session.metadata.addressId,
-            paymentId  : session.payment_intent,
-            payment_status : session.payment_status,
-        })
-    
-      const order = await OrderModel.insertMany(orderProduct)
-
-        console.log(order)
-        if(Boolean(order[0])){
-            const removeCartItems = await  UserModel.findByIdAndUpdate(userId,{
-                shopping_cart : []
-            })
-            const removeCartProductDB = await CartProductModel.deleteMany({ userId : userId})
+export async function webhookStripe(req, res) {
+    const event = req.body;
+  
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object;
+        const lineItems = await Stripe.checkout.sessions.listLineItems(session.id);
+        const userId = session.metadata.userId;
+  
+        const orderPayload = await getOrderProductItems({
+          lineItems,
+          userId,
+          addressId: session.metadata.addressId,
+          paymentId: session.payment_intent,
+          payment_status: session.payment_status
+        });
+  
+        const order = await OrderModel.create(orderPayload);
+  
+        if (order) {
+          await UserModel.findByIdAndUpdate(userId, { shopping_cart: [] });
+          await CartProductModel.deleteMany({ userId });
         }
-      break;
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-  }
-
-  // Return a response to acknowledge receipt of the event
-  response.json({received: true});
-}
-
-
-export async function getOrderDetailsController(request,response){
-    try {
-        const userId = request.userId // order id
-
-        const orderlist = await OrderModel.find({ userId : userId }).sort({ createdAt : -1 }).populate('delivery_address')
-
-        return response.json({
-            message : "order list",
-            data : orderlist,
-            error : false,
-            success : true
-        })
-    } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+  
+        break;
+  
+      default:
+        console.log(`Unhandled event type ${event.type}`);
     }
-}
+  
+    res.json({ received: true });
+  }
+  
+  export async function getOrderDetailsController(req, res) {
+    try {
+      const userId = req.userId;
+  
+      const orderList = await OrderModel.find({ userId })
+        .sort({ createdAt: -1 })
+        .populate('products.productId')
+        .populate('delivery_address');
+  
+      return res.json({
+        message: "Order list retrieved",
+        success: true,
+        data: orderList
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: error.message || error,
+        error: true
+      });
+    }
+  }
+  

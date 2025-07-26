@@ -82,69 +82,89 @@ const Header = () => {
                                 </div>
 
                                 {/**Search */}
-                                <div className='hidden lg:block'>
+                                <div className='hidden lg:block flex-1 max-w-xl mx-8'>
                                     <Search/>
                                 </div>
 
 
                                 {/**login and my cart */}
-                                <div className=''>
-                                    {/**user icons display in only mobile version**/}
-                                    <button className='text-neutral-600 lg:hidden' onClick={handleMobileUser}>
-                                        <FaRegCircleUser size={26}/>
-                                    </button>
+                                <div className='flex items-center'>
+                            {/* Mobile User Icon */}
+                            <button 
+                                className='text-gray-700 hover:text-green-600 lg:hidden mr-3 transition-colors' 
+                                onClick={handleMobileUser}
+                            >
+                                <FaRegCircleUser size={24} />
+                            </button>
 
-                                      {/**Desktop**/}
-                                    <div className='hidden lg:flex  items-center gap-10'>
-                                        {
-                                            user?._id ? (
-                                                <div className='relative'>
-                                                    <div onClick={()=>setOpenUserMenu(preve => !preve)} className='flex select-none items-center gap-1 cursor-pointer'>
-                                                        <p>Account</p>
-                                                        {
-                                                            openUserMenu ? (
-                                                                  <GoTriangleUp size={25}/> 
-                                                            ) : (
-                                                                <GoTriangleDown size={25}/>
-                                                            )
-                                                        }
-                                                       
-                                                    </div>
-                                                    {
-                                                        openUserMenu && (
-                                                            <div className='absolute right-0 top-12'>
-                                                                <div className='bg-white rounded p-4 min-w-52 lg:shadow-lg'>
-                                                                    <UserMenu close={handleCloseUserMenu}/>
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    }
-                                                    
-                                                </div>
-                                            ) : (
-                                                <button onClick={redirectToLoginPage} className='text-lg px-2'>Login</button>
-                                            )
-                                        }
-                                        <button onClick={()=>setOpenCartSection(true)} className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'>
-                                            {/**add to card icons */}
-                                            <div className='animate-bounce'>
-                                                <BsCart4 size={26}/>
-                                            </div>
-                                            <div className='font-semibold text-sm'>
+                            {/* Desktop Account */}
+                            <div className='hidden lg:flex items-center'>
+                                {
+                                    user?._id ? (
+                                        <div className='relative'>
+                                            <div 
+                                                onClick={() => setOpenUserMenu(prev => !prev)} 
+                                                className='flex select-none items-center gap-1 cursor-pointer text-gray-700 hover:text-green-600 transition-colors'
+                                            >
+                                                <FaRegCircleUser size={18} />
+                                                <p className='font-medium'>Account</p>
                                                 {
-                                                    cartItem[0] ? (
-                                                        <div>
-                                                            <p>{totalQty} Items</p>
-                                                            <p>{DisplayPriceInRupees(totalPrice)}</p>
-                                                        </div>
+                                                    openUserMenu ? (
+                                                        <GoTriangleUp size={16} />
                                                     ) : (
-                                                        <p>My Cart</p>
+                                                        <GoTriangleDown size={16} />
                                                     )
                                                 }
-                                            </div>    
+                                            </div>
+                                            {
+                                                openUserMenu && (
+                                                    <div className='absolute right-0 top-10'>
+                                                        <div className='bg-white rounded-lg p-4 min-w-52 shadow-xl border border-gray-100'>
+                                                            <UserMenu close={handleCloseUserMenu} />
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }
+                                        </div>
+                                    ) : (
+                                        <button 
+                                            onClick={redirectToLoginPage} 
+                                            className='flex items-center space-x-1 font-medium text-gray-700 hover:text-green-600 transition-colors'
+                                        >
+                                            <FaRegCircleUser size={18} />
+                                            <span>Login</span>
                                         </button>
-                                    </div>
+                                    )
+                                }
+                            </div>
+
+                            {/* Cart Button */}
+                            <button 
+                                onClick={() => setOpenCartSection(true)} 
+                                className='flex items-center gap-2 ml-5 lg:ml-8 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 px-3 py-2 rounded-full text-white transition-all duration-300 shadow-md hover:shadow-lg'
+                            >
+                                <div className={cartItem.length > 0 ? 'animate-bounce' : ''}>
+                                    <BsCart4 size={22} />
                                 </div>
+                                <div className='font-medium text-sm hidden lg:block'>
+                                    {
+                                        cartItem[0] ? (
+                                            <div>
+                                                <p>{totalQty} Items</p>
+                                                <p>{DisplayPriceInRupees(totalPrice)}</p>
+                                            </div>
+                                        ) : (
+                                            <p>My Cart</p>
+                                        )
+                                    }
+                                </div>
+                                {cartItem[0] && (
+                                    <span className='lg:hidden flex items-center justify-center bg-white text-green-600 rounded-full text-xs w-5 h-5 font-bold'>
+                                        {totalQty}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
                 </div>
             )
         }
